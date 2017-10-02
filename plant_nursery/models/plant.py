@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, exceptions, fields, models, _
+from odoo.addons.http_routing.models.ir_http import slug
 
 
 class Category(models.Model):
@@ -25,7 +26,7 @@ class Plants(models.Model):
     _name = 'plant.plant'
     _description = 'Plant'
     _order = 'name'
-    _inherit = ['mail.thread', 'mail.activity.mixin', 'website.seo.metadata']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'website.seo.metadata', 'website.published.mixin']
 
     name = fields.Char('Plant Name', required=True)
     # description
@@ -41,6 +42,13 @@ class Plants(models.Model):
         default=lambda self: self.env.user)
     stock = fields.Integer('Stock')
     price = fields.Float('Price')
+
+    @api.depends('name')
+    def _compute_website_url(self):
+        super(Plants, self)._compute_website_url()
+        for location in self:
+            if location.id:
+                location.website_url = '/plant/%s' % slug(location)
 
     @api.constrains('stock')
     def _check_stock(self):
