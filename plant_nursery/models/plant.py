@@ -28,7 +28,7 @@ class Plants(models.Model):
     _order = 'name'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'website.seo.metadata', 'website.published.mixin']
 
-    name = fields.Char('Plant Name', required=True)
+    name = fields.Char('Plant Name', required=True, track_visibility='always')
     # description
     description_short = fields.Html('Short description')
     description = fields.Html('Description')
@@ -41,7 +41,7 @@ class Plants(models.Model):
         index=True, required=True,
         default=lambda self: self.env.user)
     stock = fields.Integer('Stock')
-    price = fields.Float('Price')
+    price = fields.Float('Price', track_visibility='onchange')
 
     @api.depends('name')
     def _compute_website_url(self):
@@ -56,3 +56,16 @@ class Plants(models.Model):
             raise exceptions.ValidationError(
                 _('Stock cannot be negative.')
             )
+
+    def _track_subtype(self, init_values):
+        if 'price' in init_values:
+            return 'plant_nursery.plant_price'
+        return super(Plants, self)._track_subtype(init_values)
+
+    def _track_template(self, tracking):
+        res = super(Plants, self)._track_template(tracking)
+        plant = self[0]
+        changes, dummy = tracking[plant.id]
+        if 'price' in changes:
+            res['price'] = (self.env.ref('plant_nursery.mail_template_plant_price_updated'), {'composition_mode': 'mass_mail'})
+        return res
