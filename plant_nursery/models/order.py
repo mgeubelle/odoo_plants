@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import uuid
+
 from odoo import api, fields, models, _
 
 
@@ -8,7 +10,10 @@ class Order(models.Model):
     _name = 'plant.order'
     _description = 'Plant Order'
     _order = 'id DESC'
-    _inherit = ['mail.thread', 'mail.activity.mixin', 'rating.mixin', 'utm.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'rating.mixin', 'utm.mixin', 'portal.mixin']
+
+    def _get_default_access_token(self):
+        return str(uuid.uuid4())
 
     name = fields.Char(
         'Reference', default=lambda self: _('New'),
@@ -22,6 +27,9 @@ class Order(models.Model):
     customer_id = fields.Many2one(
         'plant.customer', string='Customer',
         index=True, required=True)
+    access_token = fields.Char(
+        'Security Token', copy=False,
+        default=_get_default_access_token)
     line_ids = fields.One2many(
         'plant.order.line', 'order_id', string='Order Lines')
     amount_total = fields.Integer(
@@ -43,6 +51,10 @@ class Order(models.Model):
     def _compute_amount_total(self):
         for order in self:
             order.amount_total = sum(order.mapped('line_ids.price'))
+
+    def _compute_portal_url(self):
+        for order in self:
+            order.portal_url = '/order/%s?access_token=%s' % (order.id, order.access_token)
 
     def action_confirm(self):
         if self.state != 'draft':
