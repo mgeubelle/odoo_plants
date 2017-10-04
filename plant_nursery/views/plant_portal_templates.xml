@@ -114,6 +114,9 @@
 <template id="plant_layout" name="Frontend Layout">
     <t t-call="plant_nursery.frontend_layout">
         <div id="wrap" class='o_portal_wrap'>
+            <!-- Used to add your custom snippet -->
+            <div class="oe_structure"/>
+
             <div class="container mb64">
                 <div class="row">
                     <a href="/plants">
@@ -141,6 +144,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Used to to customize this page with the website editor -->
+            <div class="oe_structure"/>
         </div>
     </t>
 </template>

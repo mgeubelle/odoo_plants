@@ -59,6 +59,8 @@ class Plants(models.Model):
             if location.id:
                 location.website_url = '/plant/%s' % slug(location)
 
+    promo = fields.Boolean('Is in Promotion')
+
     @api.constrains('stock')
     def _check_stock(self):
         if self.stock < 0:

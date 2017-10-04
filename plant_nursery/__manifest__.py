@@ -14,6 +14,7 @@
         'views/plant_menus.xml',
         'views/order_views.xml',
         'views/plant_views.xml',
+        'views/snippets.xml',
         'views/customer_views.xml',
         'views/assets.xml',
         'views/plant_portal_templates.xml',
